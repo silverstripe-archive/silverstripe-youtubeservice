@@ -4,15 +4,17 @@
  * Used to connect to YouTube API via REST interface.
  */
 class YoutubeService extends RestfulService {
-	private static $api_key;
+	private $primaryURL;
 	
 	function __construct(){
-		$this->baseURL = 'http://www.youtube.com/api2_rest';
-		$this->checkErrors = true;
+		$this->primaryURL = 'http://gdata.youtube.com/feeds/';
+		parent::__construct($this->primaryURL);
+		$this->checkErrors = false;
 	}
 	
 	/*
 	This will return API specific error messages.
+	FIX this to suit to GData feed
 	*/
 	function errorCatch($response){
 		$err_msg = $this->getValue($response, "error", "description");
@@ -22,66 +24,51 @@ class YoutubeService extends RestfulService {
 	 else
 	 	return $response;
 	}
-	/*
-	Sets the Developer ID for YouTube. Method name remains same as setAPIKey but it implies the dev_id
-	*/
-	static function setAPIKey($key){
-		self::$api_key = $key;
-	}
 	
-	function getAPIKey(){
-		return self::$api_key;
-	}
-	
-	function getVideosByTag($tag=NULL, $per_page=20, $page=1){
-		$params = array(
-			'method' => 'youtube.videos.list_by_tag',
-			'tag' => $tag,
-			'per_page' => $per_page,
-			'page' => $page,
-			'dev_id' => $this->getAPIKey()
-			);
+	function getVideosFeed($method=NULL, $params=array(), $max_results=10, $start_index=1){
+		$default_params = array('max-results' => $max_results, 
+									'start-index' => $start_index);
+			
+		$params = array_merge($params, $default_params);
 		
+		$this->baseURL = $this->primaryURL.$method;
 		$this->setQueryString($params);
 		$conn = $this->connect();
 		
-		$results = $this->getValues($conn, 'video_list', 'video');
-		Debug::show($results);
+		$results = $this->getValues($conn, 'entry');
+		//Debug::show($results);
 		return $results;
 	}
 	
-	function getVideosByUser($user=NULL, $per_page=20, $page=1){
-		$params = array(
-			'method' => 'youtube.videos.list_by_user',
-			'user' => $user,
-			'per_page' => $per_page,
-			'page' => $page,
-			'dev_id' => $this->getAPIKey()
-			);
-		
-		$this->setQueryString($params);
-		$conn = $this->connect();
-		
-		$results = $this->getValues($conn, 'video_list', 'video');
-		Debug::show($results);
-		return $results;
+	function getVideosByCategoryTag($categoryTag, $max_results=10, $start_index=1){
+		$method = "videos/-/$categoryTag";
+		$params = array();
+		return $this->getVideosFeed($method, $params, $max_results, $start_index);
 	}
 	
-	function getVideosByPlaylist($playlist=NULL, $per_page=20, $page=1){
+	function getVideosByQuery($query=NULL, $max_results=10, $start_index=1){
+		$method = "videos";
 		$params = array(
-			'method' => 'youtube.videos.list_by_playlist',
-			'id' => $playlist,
-			'per_page' => $per_page,
-			'page' => $page,
-			'dev_id' => $this->getAPIKey()
+			'vq' => $query
 			);
 		
-		$this->setQueryString($params);
-		$conn = $this->connect();
+		return $this->getVideosFeed($method, $params, $max_results, $start_index);
+	}
+	
+	function getVideosUploadedByUser($user=NULL, $max_results=10, $start_index=1){
+		$method = "videos";
+		$params = array(
+			'author' => $user
+			);
 		
-		$results = $this->getValues($conn, 'video_list', 'video');
-		Debug::show($results);
-		return $results;
+		return $this->getVideosFeed($method, $params, $max_results, $start_index);
+	}
+	
+	function getFavoriteVideosByUser($user=NULL, $max_results=10, $start_index=1){
+		$method = "users/$user/favorites";
+		$params = array(
+			);
+		return $this->getVideosFeed($method, $params, $max_results, $start_index);
 	}
 	
 	
