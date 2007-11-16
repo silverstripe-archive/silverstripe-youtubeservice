@@ -74,7 +74,8 @@ class YoutubeWidget extends Widget {
 			new TextField("Query", "Pharse"),
 			new TextField("CategoryTag", "Category or Tag"),
 			new NumericField("MaxResults", "Videos to Show")
-		);
+			
+			);
 	}
 }
 
