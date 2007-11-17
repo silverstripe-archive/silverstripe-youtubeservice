@@ -8,7 +8,6 @@ class YoutubeWidget extends Widget {
 		"CategoryTag" => "Varchar",
 		"MaxResults" => "Int",
 		"StartIndex" => "Int"
-		
 	);
 	
 	static $defaults = array(
@@ -51,7 +50,7 @@ class YoutubeWidget extends Widget {
 			$output->push(new ArrayData(array(
 				"Title" => $video->title,
 				"Link" => "http://www.youtube.com/watch?v=" . $videoId,
-				"Image" => "http://img.youtube.com/vi/" .$videoId. "/3.jpg",
+				"Image" => "http://img.youtube.com/vi/" .$videoId. "/2.jpg",
 				"Author" => $video->author_name
 			)));
 			
@@ -71,10 +70,14 @@ class YoutubeWidget extends Widget {
 				'3' => 'Videos uploaded by',
 				'4' => 'Favorite videos of'	) ),
 			new TextField("User", "User"),
-			new TextField("Query", "Pharse"),
+			new TextField("Query", "Search for"),
 			new TextField("CategoryTag", "Category or Tag"),
-			new NumericField("MaxResults", "Videos to Show")
-			
+			new NumericField("MaxResults", "Videos to Show", 5),
+			new DropdownField("Sortby", "Sort by ", array(
+				'relevance' => 'Relevance',
+				'updated' => 'Upload date',
+				'viewCount' => 'View count',
+				'rating' => 'Rating'))
 			);
 	}
 }
