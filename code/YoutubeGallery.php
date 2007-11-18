@@ -44,7 +44,6 @@ class YoutubeGallery extends Page {
    
    function YoutubeVideos(){
 		$youtube = new YoutubeService();
-		//Fix page setting
 		$page = isset($_GET['page'])? $_GET['page']: 1;
 		$start_index = (($page-1) * $this->PerPage) + 1 ;
 		
@@ -68,8 +67,7 @@ class YoutubeGallery extends Page {
 			$outputHTML .=  '<a href="'.$video->player_url.'" title="'.htmlentities($video->title).'"><img src="'.$video->thumbnail_url.'" alt="'.htmlentities($video->title).'"/></a>';
 		}
 		$outputHTML .= "</div>";
-	
-	//pagination - needs to Fix	
+
 	 if($videos){
 		$outputHTML .= "<div class='pages'><div class='paginator'>";
 		$outputHTML .= $youtube->getPages();
