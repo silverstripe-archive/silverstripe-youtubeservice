@@ -8,6 +8,7 @@ class YoutubeGallery extends Page {
 		"User" => "Varchar",
 		"Query" => "Varchar",
 		"CategoryTag" => "Varchar",
+		"Playlist" => "Varchar",
 		"PerPage" => "Int",
 		"Sortby" => "Varchar"
    );
@@ -29,10 +30,12 @@ class YoutubeGallery extends Page {
 				'1' => 'Videos containing phrase',
 				'2' => 'Videos by Category or Tag',
 				'3' => 'Videos uploaded by',
-				'4' => 'Favorite videos of'	)));
+				'4' => 'Favorite videos of',
+				'5' => 'Videos from playlist')));
       $fields->addFieldToTab("Root.Content.Videos", new TextField("User","Youtube Username"));
       $fields->addFieldToTab("Root.Content.Videos", new TextField("Query","Search for"));
       $fields->addFieldToTab("Root.Content.Videos", new TextField("CategoryTag", "Category or Tag"));
+      $fields->addFieldToTab("Root.Content.Videos", new TextField("Playlist", "Playlist ID"));      
       $fields->addFieldToTab("Root.Content.Videos", new NumericField("MaxResults", "Per Page", 10));
       $fields->addFieldToTab("Root.Content.Videos", new DropdownField("Sortby", "Sort by (descending)", array(
 				'relevance' => 'Relevance',
@@ -59,6 +62,9 @@ class YoutubeGallery extends Page {
 				break;
 			case 4:
 				$videos = $youtube->getFavoriteVideosByUser($this->User, $this->PerPage, $start_index, $this->Sortby);
+				break;
+			case 5:
+				$videos = $youtube->getPlaylist($this->Playlist, $this->PerPage, $start_index, $this->Sortby);
 				break;
 			}
 			

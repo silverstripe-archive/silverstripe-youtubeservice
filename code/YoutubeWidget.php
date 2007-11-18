@@ -72,6 +72,7 @@ class YoutubeWidget extends Widget {
 			new TextField("User", "User"),
 			new TextField("Query", "Search for"),
 			new TextField("CategoryTag", "Category or Tag"),
+    		new TextField("Playlist", "Playlist ID"), 
 			new NumericField("MaxResults", "Videos to Show", 5),
 			new DropdownField("Sortby", "Sort by ", array(
 				'relevance' => 'Relevance',

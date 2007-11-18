@@ -29,7 +29,7 @@ class YoutubeService extends RestfulService {
 	 	return $response;
 	}
 	
-	function getVideosFeed($method=NULL, $params=array(), $max_results=10, $start_index=1, $orderby='relevance'){
+	function getVideosFeed($method=NULL, $params=array(), $max_results=NULL, $start_index=NULL, $orderby=NULL){
 		$default_params = array('max-results' => $max_results, 
 									'start-index' => $start_index,
 									'orderby' => $orderby);
@@ -105,6 +105,13 @@ class YoutubeService extends RestfulService {
 		$params = array(
 			);
 		return $this->getVideosFeed($method, $params, $max_results, $start_index, $orderby);
+	}
+	
+	function getPlaylist($playlistID=NULL, $max_results=10, $start_index=1, $orderby='relevance'){
+		$method = "playlists/$playlistID";
+		$params = array(
+			);
+		return $this->getVideosFeed($method, $params, $max_results, $start_index);
 	}
 	
 	function Paginate(){

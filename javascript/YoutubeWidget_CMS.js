@@ -10,7 +10,7 @@ Behaviour.register({
 		toggleFields : function() {
 				//hide all fields
 				var widgetFields = $$('.YoutubeWidget .widgetFields div');
-				for(i=1; i < 4; i++){
+				for(i=1; i < 5; i++){
 					Element.hide(widgetFields[i]);
 				}
 				
@@ -27,6 +27,9 @@ Behaviour.register({
 					case '4':
 						Element.toggle(widgetFields[1]);
 						break;
+					case '5':
+						Element.toggle(widgetFields[4]);
+						break;	
 				
 				}
 			}
