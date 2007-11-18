@@ -36,9 +36,9 @@ class YoutubeGallery extends Page {
       $fields->addFieldToTab("Root.Content.Videos", new NumericField("MaxResults", "Per Page", 10));
       $fields->addFieldToTab("Root.Content.Videos", new DropdownField("Sortby", "Sort by (descending)", array(
 				'relevance' => 'Relevance',
-				'updated' => 'Upload date',
-				'viewCount' => 'View count',
-				'rating' => 'Rating')));
+				'updated' => 'Most Recent',
+				'viewCount' => 'Most Viewed',
+				'rating' => 'Most Rated')));
       return $fields;
    }
    
@@ -64,18 +64,16 @@ class YoutubeGallery extends Page {
 			}
 			
 		$outputHTML = "<div class='youtubevideo' style='float:left'>";
-		foreach($videos as $video){
-			$videoId = array_pop(explode("/", $video->id));	
-			
-			$outputHTML .=  '<a href="http://www.youtube.com/watch?v='.$videoId.'" title="'.htmlentities($video->title).'"><img src="http://img.youtube.com/vi/'.$videoId.'/2.jpg" alt="'.htmlentities($video->title).'"/></a>';
+		foreach($videos as $video){			
+			$outputHTML .=  '<a href="'.$video->player_url.'" title="'.htmlentities($video->title).'"><img src="'.$video->thumbnail_url.'" alt="'.htmlentities($video->title).'"/></a>';
 		}
 		$outputHTML .= "</div>";
 	
 	//pagination - needs to Fix	
 	 if($videos){
 		$outputHTML .= "<div class='pages'><div class='paginator'>";
-		//$outputHTML .= $youtube->getPages();
-	$outputHTML .= "</div><span class='results'>(".$youtube->getTotalVideos()." Photos)</span></div>";
+		$outputHTML .= $youtube->getPages();
+	$outputHTML .= "</div><span class='results'>(".$youtube->getTotalVideos()." Videos)</span></div>";
 	}
 	else {
 	

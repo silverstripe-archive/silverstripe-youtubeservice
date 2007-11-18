@@ -3,9 +3,12 @@
 /**
  * Used to connect to YouTube API via REST interface.
  */
+ 
+ //Complete method documentation
 class YoutubeService extends RestfulService {
 	private $primaryURL;
-	private $totalVideos;
+	private $videoCount;
+	private $pageCount;
 	
 	function __construct(){
 		$this->primaryURL = 'http://gdata.youtube.com/feeds/';
@@ -37,16 +40,40 @@ class YoutubeService extends RestfulService {
 		$this->setQueryString($params);
 		$conn = $this->connect();
 		
-		$results = $this->getValues($conn, 'entry');
-		//Debug::show($results);
-		$this->totalVideos = $this->getValue($conn, 'openSearch:totalResults');
-		Debug::show($this->totalVideos);
+		//have to make a custom XML object
+		$xml =  new SimpleXMLElement($conn);
+		
+		$entries = $xml->entry;
+		$results = new DataObjectSet();
+		
+		foreach($entries as $entry){
+			//get into media section of each entry
+			$data = array();
+			$data["author"] = Convert::raw2xml($entry->author->name);
+			$mediaentry = $entry->children('media', true);
+			//print_r($mediaentry[0]);
+			//go through the values in the media section
+			foreach($mediaentry[0]->children('media', true) as $key => $value){		
+				foreach($value->attributes() as $attr => $attr_value){
+					$compkey = $key."_".$attr;
+					if(array_key_exists($compkey, $data)){
+						$compkey = $compkey."_1";
+					}
+					$data[$compkey] = Convert::raw2xml($attr_value);
+				}
+				
+				if($value){
+						$data["$key"] = Convert::raw2xml($value);
+					}
+			};
+			$results->push(new ArrayData($data));
+		}
+				
+		//get total number of videos
+		$this->videoCount = $this->searchValue($conn, 'openSearch:totalResults');
+		$this->pageCount = (int)($this->videoCount/$max_results);
 		
 		return $results;
-	}
-	
-	function getTotalVideos(){
-		return $this->totalVideos;
 	}
 	
 	function getVideosByCategoryTag($categoryTag, $max_results=10, $start_index=1, $orderby='relevance'){
@@ -78,6 +105,55 @@ class YoutubeService extends RestfulService {
 		$params = array(
 			);
 		return $this->getVideosFeed($method, $params, $max_results, $start_index, $orderby);
+	}
+	
+	function Paginate(){
+	$current_url = Director::currentURLSegment();
+
+		$current_page = isset($_GET['page'])? (int)$_GET['page']: 1;;
+		$last_page = $this->pageCount;
+		//$this->TotalPosts = $this->postCount;
+		
+		
+		if($current_page > 1){
+			$qs = http_build_query(array('page' => $current_page - 1));
+			$pagelist = "<a href='$current_url?$qs' class='prev'>&lt; Previous</a>";
+		}
+		
+		if($current_page < 6)
+			$start = 0;
+		else
+			$start = $current_page - 5;
+		
+		$end = $last_page < 10 ? $last_page : $start+10;
+		
+		$pagelist = "";
+		for($i=$start; $i < $end ; $i++){
+			$pagenum = $i + 1;
+			if($pagenum != $current_page){
+				$qs = http_build_query(array('page' => $pagenum));
+				$page_item = "<a href='$current_url?$qs'>$pagenum</a>";
+			}
+			else 
+				$page_item = "<span class='currentPage'>$pagenum</span>";
+				
+			$pagelist .= $page_item;
+		}
+		
+		if ($current_page < $last_page){
+			$qs = http_build_query(array('page' => $current_page + 1));
+			$pagelist .= "<a href='$current_url?$qs' class='next'>Next &gt;</a>";
+		}
+			
+		return $pagelist;
+	}
+	
+	function getPages(){
+		return $this->Paginate();
+	}
+	
+	function getTotalVideos(){
+		return $this->videoCount;
 	}
 	
 	
