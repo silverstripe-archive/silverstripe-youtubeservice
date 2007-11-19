@@ -68,11 +68,13 @@ class YoutubeGallery extends Page {
 				break;
 			}
 			
-		$outputHTML = "<div class='youtubevideo' style='float:left'>";
-		foreach($videos as $video){			
-			$outputHTML .=  '<a href="'.$video->player_url.'" title="'.htmlentities($video->title).'"><img src="'.$video->thumbnail_url.'" alt="'.htmlentities($video->title).'"/></a>';
+			
+		$outputHTML = "<ul class='youtubevideos'>";
+		foreach($videos as $video){	
+			$duration = round((float)$video->content_duration/60, 2);		
+			$outputHTML .=  '<li><div class="still"><a href="'.$video->player_url.'" title="'.htmlentities($video->title).'"><img src="'.$video->thumbnail_url.'" alt="'.htmlentities($video->title).'"/></a></div><div class="info"><h6><a href="'.$video->player_url.'" title="'.htmlentities($video->title).'">'.$video->title.'</a></h6><p>'.$video->description.'<br/><strong>Duration : </strong>'.$duration.'</p></div></li>';
 		}
-		$outputHTML .= "</div>";
+		$outputHTML .= "</ul>";
 
 	 if($videos){
 		$outputHTML .= "<div class='pages'><div class='paginator'>";
