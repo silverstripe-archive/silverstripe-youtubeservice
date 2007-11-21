@@ -1,6 +1,6 @@
 19 November 2007
 
-This is v0.1.0 of YoutubeService module.
+This is v0.1.0 of YoutubeService module. This module is maintained by Lakshan Perera (lakshan AT silverstripe.com)
 
 You can find the documentation at : http://doc.silverstripe.com/doku.php?id=modules:youtubeservice
 
@@ -18,7 +18,6 @@ gallery
 
 2. Run /db/build/
 
-
 3. The CMS should now have a new "YoutubeGallery" page type.
    Create a page and set the parameters correctly on 'Videos' tab to grab the videos for display.
 
@@ -29,7 +28,8 @@ gallery
 :: NOTE ::
 If you are still using deprecated all-in-one mashups module, please remove it before installing this. All other functionalities which were available in mashups module are now available in separate modules.
 
-Please raise issues, bugs, contributions in the silverstripe.com forum...
+Add the issues, bugs, contributions to the module on open.silverstripe.com (create a new ticket under this module).
 
-lakshan@silverstripe.com
+If you require any support on usage of the module ask it through the forum - http://www.silverstripe.com/extending-hacking-silverstripe-forum/
+
 
