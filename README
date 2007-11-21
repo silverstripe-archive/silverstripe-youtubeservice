@@ -28,6 +28,8 @@ gallery
 :: NOTE ::
 If you are still using deprecated all-in-one mashups module, please remove it before installing this. All other functionalities which were available in mashups module are now available in separate modules.
 
+* The new update of the YouTube API doesn't require to have an API key. So no need to worry on applying for an API key ;)
+
 Add the issues, bugs, contributions to the module on open.silverstripe.com (create a new ticket under this module).
 
 If you require any support on usage of the module ask it through the forum - http://www.silverstripe.com/extending-hacking-silverstripe-forum/
