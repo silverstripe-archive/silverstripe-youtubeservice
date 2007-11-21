@@ -41,9 +41,9 @@ class YoutubeWidget extends Widget {
 			
 			$output->push(new ArrayData(array(
 				"Title" => $video->title,
-				"Link" => "http://www.youtube.com/watch?v=" . $videoId,
-				"Image" => "http://img.youtube.com/vi/" .$videoId. "/2.jpg",
-				"Author" => $video->author_name
+				"Link" => $video->player_url,
+				"Image" => $video->thumbnail_url,
+				"Duration" => round((float)$video->content_duration/60, 2)
 			)));
 			
 		}
