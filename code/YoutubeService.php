@@ -4,15 +4,18 @@
  * Used to connect to YouTube API via REST interface.
  */
  
- //Complete method documentation
 class YoutubeService extends RestfulService {
 	private $primaryURL;
 	private $videoCount;
 	private $pageCount;
 	
-	function __construct(){
+	/**
+ 	* Creates a new YoutubeService object.
+ 	* @param expiry - Set the cache expiry time or TTL of the response
+ 	*/
+	function __construct($expiry=NULL){
 		$this->primaryURL = 'http://gdata.youtube.com/feeds/';
-		parent::__construct($this->primaryURL);
+		parent::__construct($this->primaryURL, $expiry);
 		$this->checkErrors = false;
 	}
 	
@@ -29,6 +32,14 @@ class YoutubeService extends RestfulService {
 	 	return $response;
 	}
 	
+	/**
+	* Retrives a Videos Feed - generic method
+	* @param method - video function, actually the sub url of the feed eg:/playlists
+	* @param params - params to pass
+	* @param max_results - maximum results to return
+	* @param start_index - start index of the video feed
+	* @param orderby - Sorting method. The possible valus are relevance, updated, viewCount, rating
+	*/
 	function getVideosFeed($method=NULL, $params=array(), $max_results=NULL, $start_index=NULL, $orderby=NULL){
 		$default_params = array('max-results' => $max_results, 
 									'start-index' => $start_index,
@@ -76,12 +87,26 @@ class YoutubeService extends RestfulService {
 		return $results;
 	}
 	
+	/**
+	* Get videos by category or Tag 
+	* @param categoryTag - category name or tag separated by backslash '/', if it's a category name capitalize
+	* @param max_results - maximum results to return
+	* @param start_index - start index of the video feed
+	* @param orderby - Sorting method. The possible valus are relevance, updated, viewCount, rating
+	*/
 	function getVideosByCategoryTag($categoryTag, $max_results=10, $start_index=1, $orderby='relevance'){
 		$method = "videos/-/$categoryTag";
 		$params = array();
 		return $this->getVideosFeed($method, $params, $max_results, $start_index, $orderby);
 	}
 	
+	/**
+	* Search for videos based on a phrase
+	* @param quert - text to search
+	* @param max_results - maximum results to return
+	* @param start_index - start index of the video feed
+	* @param orderby - Sorting method. The possible valus are relevance, updated, viewCount, rating
+	*/
 	function getVideosByQuery($query=NULL, $max_results=10, $start_index=1, $orderby='relevance'){
 		$method = "videos";
 		$params = array(
@@ -91,6 +116,13 @@ class YoutubeService extends RestfulService {
 		return $this->getVideosFeed($method, $params, $max_results, $start_index, $orderby);
 	}
 	
+	/**
+	* Get videos uploaded by a particular user
+	* @param user - user id of the user
+	* @param max_results - maximum results to return
+	* @param start_index - start index of the video feed
+	* @param orderby - Sorting method. The possible valus are relevance, updated, viewCount, rating
+	*/
 	function getVideosUploadedByUser($user=NULL, $max_results=10, $start_index=1, $orderby='relevance'){
 		$method = "videos";
 		$params = array(
@@ -100,6 +132,13 @@ class YoutubeService extends RestfulService {
 		return $this->getVideosFeed($method, $params, $max_results, $start_index, $orderby);
 	}
 	
+	/**
+	* Get the favorite videos of an user
+	* @param user - user id of the user
+	* @param max_results - maximum results to return
+	* @param start_index - start index of the video feed
+	* @param orderby - Sorting method. The possible valus are relevance, updated, viewCount, rating
+	*/
 	function getFavoriteVideosByUser($user=NULL, $max_results=10, $start_index=1, $orderby='relevance'){
 		$method = "users/$user/favorites";
 		$params = array(
@@ -107,6 +146,13 @@ class YoutubeService extends RestfulService {
 		return $this->getVideosFeed($method, $params, $max_results, $start_index, $orderby);
 	}
 	
+	/**
+	* Returns a playlist containing videos
+	* @param playlistID - ID of the playlist to return
+	* @param max_results - maximum results to return
+	* @param start_index - start index of the video feed
+	* @param orderby - Sorting method. The possible valus are relevance, updated, viewCount, rating
+	*/
 	function getPlaylist($playlistID=NULL, $max_results=10, $start_index=1, $orderby='relevance'){
 		$method = "playlists/$playlistID";
 		$params = array(
@@ -114,6 +160,9 @@ class YoutubeService extends RestfulService {
 		return $this->getVideosFeed($method, $params, $max_results, $start_index);
 	}
 	
+	/**
+	* Handles pagination
+	*/
 	function Paginate(){
 	$current_url = Director::currentURLSegment();
 
@@ -155,10 +204,16 @@ class YoutubeService extends RestfulService {
 		return $pagelist;
 	}
 	
+	/**
+	* Get page list 
+	*/
 	function getPages(){
 		return $this->Paginate();
 	}
 	
+	/**
+	* Get total number of videos available for this query
+	*/
 	function getTotalVideos(){
 		return $this->videoCount;
 	}
