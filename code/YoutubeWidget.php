@@ -4,8 +4,6 @@ class YoutubeWidget extends Widget {
 	static $db = array(
 		"Method" => "Int",
 		"User" => "Varchar",
-		"Query" => "Varchar",
-		"CategoryTag" => "Varchar",
 		"MaxResults" => "Int",
 		"StartIndex" => "Int"
 	);
@@ -18,7 +16,7 @@ class YoutubeWidget extends Widget {
 	
 	static $title = "YouTube Videos";
 	static $cmsTitle = "YouTube Videos";
-	static $description = "Shows thumbnails of Youtube videos.";
+	static $description = "Shows thumbnails of your Youtube videos.";
 	
 	function Videos() {
 		
@@ -27,15 +25,9 @@ class YoutubeWidget extends Widget {
 		try {
 			switch ($this->Method){
 			case 1:
-				$videos = $youtube->getVideosByQuery($this->Query);
-				break;
-			case 2:
-				$videos = $youtube->getVideosByCategoryTag($this->CategoryTag);
-				break;
-			case 3:
 				$videos = $youtube->getVideosUploadedByUser($this->User);
 				break;
-			case 4:
+			case 2:
 				$videos = $youtube->getFavoriteVideosByUser($this->User);
 				break;
 			}
@@ -61,18 +53,11 @@ class YoutubeWidget extends Widget {
 
 	function getCMSFields() {
 	
-	Requirements::javascript( 'youtubeservice/javascript/YoutubeWidget_CMS.js' );
-	
 		return new FieldSet(
+			new TextField("User", "Youtube username"),
 			new DropdownField("Method", "Select ", array(
-				'1' => 'Videos containing phrase',
-				'2' => 'Videos by Category or Tag',
-				'3' => 'Videos uploaded by',
-				'4' => 'Favorite videos of'	) ),
-			new TextField("User", "User"),
-			new TextField("Query", "Search for"),
-			new TextField("CategoryTag", "Category or Tag"),
-    		new TextField("Playlist", "Playlist ID"), 
+				'1' => 'Videos uploaded by',
+				'2' => 'Favorite videos of'	) ), 
 			new NumericField("MaxResults", "Videos to Show", 5),
 			new DropdownField("Sortby", "Sort by ", array(
 				'relevance' => 'Relevance',
