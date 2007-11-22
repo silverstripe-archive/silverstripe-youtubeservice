@@ -16,18 +16,17 @@ class YoutubeService extends RestfulService {
 	function __construct($expiry=NULL){
 		$this->primaryURL = 'http://gdata.youtube.com/feeds/';
 		parent::__construct($this->primaryURL, $expiry);
-		$this->checkErrors = false;
+		$this->checkErrors = true; //set this to call errorCatch function on response
 	}
 	
 	/*
-	This will return API specific error messages.
-	FIX this to suit to GData feed
+	This will raise API specific error messages (if any).
 	*/
 	function errorCatch($response){
-		$err_msg = $this->getValue($response, "error", "description");
-	 if($err_msg)
+		$err_msg = $response;
+	 if(strpos($err_msg, '<') === false)
 		//user_error("YouTube Service Error : $err_msg", E_USER_ERROR);
-	 	throw new Exception("YouTube Service Error : $err_msg");
+	 	user_error("YouTube Service Error : $err_msg", E_USER_ERROR);
 	 else
 	 	return $response;
 	}
@@ -52,6 +51,7 @@ class YoutubeService extends RestfulService {
 		$conn = $this->connect();
 		
 		//have to make a custom XML object
+		try{
 		$xml =  new SimpleXMLElement($conn);
 		
 		$entries = $xml->entry;
@@ -85,6 +85,12 @@ class YoutubeService extends RestfulService {
 		$this->pageCount = (int)($this->videoCount/$max_results);
 		
 		return $results;
+		}
+		catch (Exception $e) {
+			user_error("Error occurred in processing YouTube response");
+			return false;
+		}
+		
 	}
 	
 	/**
