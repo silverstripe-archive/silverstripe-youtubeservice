@@ -36,7 +36,7 @@ class YoutubeGallery extends Page {
       $fields->addFieldToTab("Root.Content.Videos", new TextField("Query","Search for"));
       $fields->addFieldToTab("Root.Content.Videos", new TextField("CategoryTag", "Category or Tag"));
       $fields->addFieldToTab("Root.Content.Videos", new TextField("Playlist", "Playlist ID"));      
-      $fields->addFieldToTab("Root.Content.Videos", new NumericField("MaxResults", "Per Page", 10));
+      $fields->addFieldToTab("Root.Content.Videos", new NumericField("PerPage", "Per Page", 10));
       $fields->addFieldToTab("Root.Content.Videos", new DropdownField("Sortby", "Sort by (descending)", array(
 				'relevance' => 'Relevance',
 				'updated' => 'Most Recent',
@@ -49,7 +49,7 @@ class YoutubeGallery extends Page {
 		$youtube = new YoutubeService();
 		$page = isset($_GET['page'])? $_GET['page']: 1;
 		$start_index = (($page-1) * $this->PerPage) + 1 ;
-		
+		Debug::show($this->ID);
 		switch ($this->Method){
 			case 1:
 				$videos = $youtube->getVideosByQuery($this->Query, $this->PerPage, $start_index, $this->Sortby);
