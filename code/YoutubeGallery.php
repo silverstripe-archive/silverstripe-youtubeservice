@@ -49,7 +49,7 @@ class YoutubeGallery extends Page {
 		$youtube = new YoutubeService();
 		$page = isset($_GET['page'])? $_GET['page']: 1;
 		$start_index = (($page-1) * $this->PerPage) + 1 ;
-		Debug::show($this->ID);
+
 		switch ($this->Method){
 			case 1:
 				$videos = $youtube->getVideosByQuery($this->Query, $this->PerPage, $start_index, $this->Sortby);
