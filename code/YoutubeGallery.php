@@ -23,7 +23,9 @@ class YoutubeGallery extends Page {
  
    // add custom fields for this youtube gallery page
    function getCMSFields($cms) {
-   	  Requirements::javascript( 'youtubeservice/javascript/YoutubeGallery_CMS.js' );
+   	  // We should uncomment this when you can load and unload javascript files dynamically at any time via Javascript
+   	  // See http://open.silverstripe.com/ticket/594
+   	  //Requirements::javascript( 'youtubeservice/javascript/YoutubeGallery_CMS.js' );
    	  
       $fields = parent::getCMSFields($cms);
       $fields->addFieldToTab("Root.Content.Videos", new DropdownField("Method", "Select ", array(
