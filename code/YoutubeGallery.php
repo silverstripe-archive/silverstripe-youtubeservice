@@ -1,5 +1,8 @@
 <?php
- 
+/**
+ * 
+ * @todo Remove customized dependencies on js-libraries (lightwindow, scriptaculous, prototype)
+ */
 class YoutubeGallery extends Page {
  
    // define your database fields here - for example we have author
@@ -10,6 +13,7 @@ class YoutubeGallery extends Page {
 		"CategoryTag" => "Varchar",
 		"Playlist" => "Varchar",
 		"PerPage" => "Int",
+   		"ShowVideoInPopup" => "Boolean", // either show thumbs (default) or video objects
 		"Sortby" => "Varchar"
    );
    
@@ -20,6 +24,14 @@ class YoutubeGallery extends Page {
 	);
    
   static $icon = "youtubeservice/images/youtube";
+  
+	/**
+	 * Internal cache to avoid hitting the API more than once
+	 * per page-rendering.
+	 *
+	 * @var DataObjectSet
+	 */
+	protected $_cachedVideos = null;
  
    // add custom fields for this youtube gallery page
    function getCMSFields($cms) {
@@ -38,18 +50,22 @@ class YoutubeGallery extends Page {
       $fields->addFieldToTab("Root.Content.Videos", new TextField("Query","Search for"));
       $fields->addFieldToTab("Root.Content.Videos", new TextField("CategoryTag", "Category or Tag"));
       $fields->addFieldToTab("Root.Content.Videos", new TextField("Playlist", "Playlist ID"));      
+      $fields->addFieldToTab("Root.Content.Videos", new CheckboxField("ShowVideoInPopup", "Show videos in a popup (rather than external link)"));
       $fields->addFieldToTab("Root.Content.Videos", new NumericField("PerPage", "Per Page", 10));
       $fields->addFieldToTab("Root.Content.Videos", new DropdownField("Sortby", "Sort by (descending)", array(
 				'relevance' => 'Relevance',
 				'updated' => 'Most Recent',
 				'viewCount' => 'Most Viewed',
 				'rating' => 'Most Rated')));
+      
       return $fields;
    }
    
    function YoutubeVideos(){
-		$youtube = new YoutubeService();
-		$page = isset($_GET['page'])? $_GET['page']: 1;
+		if($this->_cachedVideos) return $this->_cachedVideos;
+   	
+   		$youtube = new YoutubeService();
+		$page = isset($_GET['page'])? (int)$_GET['page']: 1;
 		$start_index = (($page-1) * $this->PerPage) + 1 ;
 
 		switch ($this->Method){
@@ -68,43 +84,41 @@ class YoutubeGallery extends Page {
 			case 5:
 				$videos = $youtube->getPlaylist($this->Playlist, $this->PerPage, $start_index, $this->Sortby);
 				break;
-			}
-			
-			
-		$outputHTML = "<ul class='youtubevideos'>";
-		foreach($videos as $video){	
-			$duration = round((float)$video->content_duration/60, 2);		
-			$outputHTML .=  '<li><div class="still"><a href="'.$video->player_url.'" title="'.htmlentities($video->title).'"><img src="'.$video->thumbnail_url.'" alt="'.htmlentities($video->title).'"/></a></div><div class="info"><h6><a href="'.$video->player_url.'" title="'.htmlentities($video->title).'">'.$video->title.'</a></h6><p>'.$video->description.'<br/><strong>Duration : </strong>'.$duration.'</p></div></li>';
 		}
-		$outputHTML .= "</ul>";
-
-	 if($videos){
-		$outputHTML .= "<div class='pages'><div class='paginator'>";
-		$outputHTML .= $youtube->getPages();
-	$outputHTML .= "</div><span class='results'>(".$youtube->getTotalVideos()." Videos)</span></div>";
-	}
-	else {
-	
-	$outputHTML .= "<span>Sorry!  Gallery doesn't contain any images for this page.</span>";
-	}
 		
-		return $outputHTML;
+		// caching
+		$this->_cachedVideos = $videos;
+			
+		return $videos;
+	}
+
+	function flushCache() {
+		parent::flushCache();
+		
+		unset($this->_cachedVideos);
 	}
 }
 
 class YoutubeGallery_Controller extends Page_Controller {
 	function init() {
-      if(Director::fileExists(project() . "/css/YoutubeGallery.css")) {
-         Requirements::css(project() . "/css/YoutubeGallery.css");
-      }else{
-         Requirements::css("youtubeservice/css/YoutubeGallery.css");
-      }
+		if(Director::fileExists(project() . "/css/YoutubeGallery.css")) {
+			Requirements::css(project() . "/css/YoutubeGallery.css");
+		} elseif(Director::fileExists('themes/' . project() . "/css/YoutubeGallery.css")) {
+			Requirements::css('themes/' . project() . "/css/YoutubeGallery.css");
+		} else {
+			Requirements::css("youtubeservice/css/YoutubeGallery.css");
+		}
+
+		// only include if necessary
+		if($this->failover->ShowVideoInPopup) {
+			Requirements::javascript( "youtubeservice/javascript/prototype.js" );
+			Requirements::javascript( "youtubeservice/javascript/effects.js" );
+			Requirements::javascript( "youtubeservice/javascript/lightwindow.js" );
+			
+			Requirements::css("youtubeservice/css/lightwindow.css");
+		}
       
       parent::init();	
-   }
-   
-   function Content(){
-			return $this->Content.$this->YoutubeVideos();
    }
 
 }

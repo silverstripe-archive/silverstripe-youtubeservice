@@ -1,0 +1,11 @@
+0.1:
+- initial release
+
+0.2:
+- FEATURE: added lightbox (inline-viewing) support
+- FEATURE: added YoutubeGallery.ss template
+- FEATURE: changed and extended template accessors (added $SmallThumbnail, $Duration)
+- FEATURE: added "ShowVideoInPopup" flag to toggle inline-viewing by lightbox
+- FEATURE: accepting css-overrides in /themes directory
+- BUGFIX: added namespacing to ".youtubegallery" in YoutubeGallery.css
+- FEATURE: added PHP-level caching of video-results

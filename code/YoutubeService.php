@@ -5,8 +5,25 @@
  */
  
 class YoutubeService extends RestfulService {
+	
+	/**
+	 * Youtube default video width.
+	 *
+	 * @var int
+	 */
+	protected static $player_width = 425;
+	
+	/**
+	 * Youtube default video height.
+	 *
+	 * @var int
+	 */
+	protected static $player_height = 355;
+	
 	private $primaryURL;
+	
 	private $videoCount;
+	
 	private $pageCount;
 	
 	/**
@@ -40,9 +57,11 @@ class YoutubeService extends RestfulService {
 	* @param orderby - Sorting method. The possible valus are relevance, updated, viewCount, rating
 	*/
 	function getVideosFeed($method=NULL, $params=array(), $max_results=NULL, $start_index=NULL, $orderby=NULL){
-		$default_params = array('max-results' => $max_results, 
-									'start-index' => $start_index,
-									'orderby' => $orderby);
+		$default_params = array(
+			'max-results' => $max_results, 
+			'start-index' => $start_index,
+			'orderby' => $orderby
+		);
 			
 		$params = array_merge($params, $default_params);
 		
@@ -51,42 +70,23 @@ class YoutubeService extends RestfulService {
 		$conn = $this->connect();
 		
 		//have to make a custom XML object
-		try{
-		$xml =  new SimpleXMLElement($conn);
-		
-		$entries = $xml->entry;
-		$results = new DataObjectSet();
-		
-		foreach($entries as $entry){
-			//get into media section of each entry
-			$data = array();
-			$data["author"] = Convert::raw2xml($entry->author->name);
-			$mediaentry = $entry->children('media', true);
-			//print_r($mediaentry[0]);
-			//go through the values in the media section
-			foreach($mediaentry[0]->children('media', true) as $key => $value){		
-				foreach($value->attributes() as $attr => $attr_value){
-					$compkey = $key."_".$attr;
-					if(array_key_exists($compkey, $data)){
-						$compkey = $compkey."_1";
-					}
-					$data[$compkey] = Convert::raw2xml($attr_value);
-				}
-				
-				if($value){
-						$data["$key"] = Convert::raw2xml($value);
-					}
-			};
-			$results->push(new ArrayData($data));
-		}
-				
-		//get total number of videos
-		$this->videoCount = $this->searchValue($conn, 'openSearch:totalResults');
-		$this->pageCount = (int)($this->videoCount/$max_results);
-		
-		return $results;
-		}
-		catch (Exception $e) {
+		try {
+			$xml =  new SimpleXMLElement($conn);
+			
+			$videos = $xml->entry;
+			$results = new DataObjectSet();
+			
+			foreach($videos as $video){
+				$data = $this->extractVideoInfo($video); // Get the data requested
+				$results->push(new ArrayData($data));
+			}
+					
+			//get total number of videos
+			$this->videoCount = $this->searchValue($conn, 'openSearch:totalResults');
+			$this->pageCount = (int)($this->videoCount/$max_results);
+			
+			return $results;
+		} catch (Exception $e) {
 			user_error("Error occurred in processing YouTube response");
 			return false;
 		}
@@ -168,6 +168,8 @@ class YoutubeService extends RestfulService {
 	
 	/**
 	* Handles pagination
+	* 
+	* @todo Refactor to use DataObjectSet pagnination and templates
 	*/
 	function Paginate(){
 	$current_url = Director::currentURLSegment();
@@ -224,6 +226,56 @@ class YoutubeService extends RestfulService {
 		return $this->videoCount;
 	}
 	
-	
+/**
+	 * Gets information from one <entry> tag from the feed
+	 */
+	function extractVideoInfo($video) {
+		$data = array();
+		
+		$mediaentry = $video->children('media', true);
+		$attrs = ($mediaentry[0]->children('media', true));
+		
+		$data['Author'] = Convert::raw2xml((string)$video->author->name);
+		
+		$data['Title'] = Convert::raw2xml((string)$video->title); // Title of the video
+					
+		$data['HTML'] = trim((string)$video->content);
+		$descriptionObj = $mediaentry->xpath("media:description");
+		$data['Description'] = Convert::raw2xml(trim((string)$descriptionObj[0])); // should not contain HTML markup
+		
+		$runtimeSecObj = $mediaentry->xpath('yt:duration/@seconds');
+		$data['RuntimeSec'] = (int)$runtimeSecObj[0]; // Runtime in seconds
+		$data['RuntimeMin'] = $this->convertSecsToMins($data['RuntimeSec']); // Runtime in minutes
+		$data['Runtime'] = $data['RuntimeSec'] < 60 ? $data['RuntimeMin'] . " seconds" : $data['RuntimeMin'] . " minutes"; // Output either xx seconds or xx minutes
+		$data['ShowRuntime'] = $data['RuntimeSec'] == 0 ? false : true; // Only show the runtime if it's longer than 0 seconds
+		
+		// get embeddable SWF (format code "5")
+		// @see http://code.google.com/apis/youtube/reference.html#yt_format
+		$urlObj = $mediaentry->xpath('media:content[@yt:format=5]');
+		$data['PlayerURL'] = Convert::raw2xml((string)$urlObj[0]['url']);
+		
+		$data['PlayerWidth'] = self::$player_width;
+		$data['PlayerHeight'] = self::$player_height;
+		
+		$thumbnailObjs = $mediaentry->xpath('media:thumbnail');
+		$data['SmallThumbnail'] = new ArrayData(array(
+			'URL' => Convert::raw2xml((string)$thumbnailObjs[0]['url']),
+			'Width' => (int)$thumbnailObjs[0]['width'],
+			'Height' => (int)$thumbnailObjs[0]['height'],
+		));
+		
+		return $data;
 	}
+	
+	/**
+	 * Helper method to convert a number of seconds into the equivilent number of minutes:seconds
+	 * 
+	 * @param int $seconds The number of seconds
+	 * @return string The number of seconds into minutes (e.g. input 300, output 5:00)
+	 */
+	function convertSecsToMins($seconds) {
+		return date("i:s", $seconds);
+	}
+}
+
 ?>
