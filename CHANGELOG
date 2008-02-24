@@ -9,3 +9,4 @@
 - FEATURE: accepting css-overrides in /themes directory
 - BUGFIX: added namespacing to ".youtubegallery" in YoutubeGallery.css
 - FEATURE: added PHP-level caching of video-results
+- FEATURE: added BBCode parsing for Page content (e.g. "[youtubevideo]EQ2vLdFTaT0[/youtubevideo]")
