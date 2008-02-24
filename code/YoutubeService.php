@@ -2,6 +2,8 @@
 
 /**
  * Used to connect to YouTube API via REST interface.
+ * 
+ * @see http://code.google.com/apis/youtube/developers_guide_protocol.html
  */
  
 class YoutubeService extends RestfulService {
@@ -20,41 +22,63 @@ class YoutubeService extends RestfulService {
 	 */
 	protected static $player_height = 355;
 	
-	private $primaryURL;
-	
+	/**
+	 * @var int
+	 */
 	private $videoCount;
 	
+	/**
+	 * @var int
+	 */
 	private $pageCount;
+	
+	/**
+	 * RESTful URI-resource to query video-feeds
+	 * in Atom 1.0 format. Add search-parameters
+	 * through POST with the execution.
+	 * 
+	 * @var string
+	 */
+	public static $api_base_url = "http://gdata.youtube.com/feeds/";
+	
+	/**
+	 * RESTful URI-resource for a single video,
+	 * returning an Atom 1.0 XML feed.
+	 * Sprintf-params: video-id
+	 *
+	 * @var string
+	 */
+	public static $api_detail_url = "http://gdata.youtube.com/feeds/api/videos/%s";
 	
 	/**
  	* Creates a new YoutubeService object.
  	* @param expiry - Set the cache expiry time or TTL of the response
  	*/
 	function __construct($expiry=NULL){
-		$this->primaryURL = 'http://gdata.youtube.com/feeds/';
-		parent::__construct($this->primaryURL, $expiry);
+		parent::__construct(self::$api_base_url, $expiry);
+		
 		$this->checkErrors = true; //set this to call errorCatch function on response
 	}
 	
-	/*
-	This will raise API specific error messages (if any).
-	*/
+	/**
+	 * This will raise API specific error messages (if any).
+	 */
 	function errorCatch($response){
 		$err_msg = $response;
-	 if(strpos($err_msg, '<') === false)
-		//user_error("YouTube Service Error : $err_msg", E_USER_ERROR);
-	 	user_error("YouTube Service Error : $err_msg", E_USER_ERROR);
-	 else
-	 	return $response;
+		if(strpos($err_msg, '<') === false) user_error("YouTubeService Error : $err_msg", E_USER_ERROR);
+
+		return $response;
 	}
 	
 	/**
-	* Retrives a Videos Feed - generic method
+	* Retrieves a Videos Feed - generic method
+	* 
 	* @param method - video function, actually the sub url of the feed eg:/playlists
 	* @param params - params to pass
 	* @param max_results - maximum results to return
 	* @param start_index - start index of the video feed
 	* @param orderby - Sorting method. The possible valus are relevance, updated, viewCount, rating
+	* @return DataObjectSet
 	*/
 	function getVideosFeed($method=NULL, $params=array(), $max_results=NULL, $start_index=NULL, $orderby=NULL){
 		$default_params = array(
@@ -65,7 +89,7 @@ class YoutubeService extends RestfulService {
 			
 		$params = array_merge($params, $default_params);
 		
-		$this->baseURL = $this->primaryURL.$method;
+		$this->baseURL = self::$api_base_url . $method;
 		$this->setQueryString($params);
 		$conn = $this->connect();
 		
@@ -164,6 +188,33 @@ class YoutubeService extends RestfulService {
 		$params = array(
 			);
 		return $this->getVideosFeed($method, $params, $max_results, $start_index);
+	}
+	
+	/**
+	 * Get information about one video
+	 * 
+	 * @param string $videoID The ID of the video (e.g. EQ2vLdFTaT0)
+	 */
+	function getVideoInfo($videoID) {
+		// make sure ID is valid
+		if(!preg_match('/^[a-zA-Z0-9]+$/', $videoID)) {
+			user_error('YoutubeService->getVideoInfo(): Invalid Youtube ID', E_USER_WARNING);
+			return false;
+		}
+		
+		$this->baseURL = sprintf(self::$api_detail_url, $videoID);
+		$youtubeHandle = $this->connect();
+		
+		try {
+			$video = new SimpleXMLElement($youtubeHandle, LIBXML_NOCDATA); // Convert the response to a SimpleXMLElement, stripping CDATA elements and returning 'pure' HTML
+			if(!$video) return false;
+			
+			return $this->extractVideoInfo($video); // Get the data requested
+		} catch (Exception $e) {
+			// Don't error out if there was an error with youbute
+			// user_error("Error occured processing www.youtube.com response", E_USER_WARNING);
+			return null;
+		}
 	}
 	
 	/**
