@@ -2,10 +2,13 @@
 
 This is v0.1.0 of YoutubeService module. This module is maintained by Lakshan Perera (lakshan AT silverstripe.com)
 
+# Documentation
 You can find the documentation at : http://doc.silverstripe.com/doku.php?id=modules:youtubeservice
 
-To install :
+# Requirements
+PHP 5.2.5 (Due to bugfixes in SimpleXML, see http://nz.php.net/ChangeLog-5.php)
 
+# Installation
 1. Place this directory in the root of your SilverStripe installation
 I.e. you will now have the following root folders
 

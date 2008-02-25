@@ -4,6 +4,7 @@
  * Used to connect to YouTube API via REST interface.
  * 
  * @see http://code.google.com/apis/youtube/developers_guide_protocol.html
+ * @todo Fix SimpleXML parsing for PHP <5.2.5
  */
  
 class YoutubeService extends RestfulService {
