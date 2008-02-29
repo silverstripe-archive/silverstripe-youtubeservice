@@ -8,6 +8,8 @@
  * 
  * Of the four formats, the last two are preferred, because the first two are just regex'd
  * into the last two formats anyway.
+ * 
+ * CAUTION: Currently only works on BlogEntry.php pages within the blog module.
  */
 class YoutubeBBCodeParser extends SSHTMLBBCodeParserFilter {
 	/**
