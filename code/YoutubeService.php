@@ -198,10 +198,12 @@ class YoutubeService extends RestfulService {
 	 */
 	function getVideoInfo($videoID) {
 		// make sure ID is valid
+		/*
 		if(!preg_match('/^[a-zA-Z0-9]+$/', $videoID)) {
 			user_error('YoutubeService->getVideoInfo(): Invalid Youtube ID', E_USER_WARNING);
 			return false;
 		}
+		*/
 		
 		$this->baseURL = sprintf(self::$api_detail_url, $videoID);
 		$youtubeHandle = $this->connect();
