@@ -78,7 +78,7 @@ class YoutubeService extends RestfulService {
 	* @param params - params to pass
 	* @param max_results - maximum results to return
 	* @param start_index - start index of the video feed
-	* @param orderby - Sorting method. The possible valus are relevance, updated, viewCount, rating
+	* @param orderby - Sorting method. The possible valus are relevance, updated, published, viewCount, rating
 	* @return DataObjectSet
 	*/
 	function getVideosFeed($method=NULL, $params=array(), $max_results=NULL, $start_index=NULL, $orderby=NULL){
