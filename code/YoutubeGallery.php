@@ -55,7 +55,7 @@ class YoutubeGallery extends Page {
       $fields->addFieldToTab("Root.Content.Videos", new DropdownField("Sortby", "Sort by (descending)", array(
 				'relevance' => 'Relevance',
 				'updated' => 'Most recently updated',
-      		'published' => 'Most recently published',
+				'published' => 'Most recently published',
 				'viewCount' => 'Most Viewed',
 				'rating' => 'Most Rated')));
       
