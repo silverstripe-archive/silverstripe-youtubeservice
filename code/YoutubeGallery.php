@@ -57,7 +57,9 @@ class YoutubeGallery extends Page {
 				'updated' => 'Most recently updated',
 				'published' => 'Most recently published',
 				'viewCount' => 'Most Viewed',
-				'rating' => 'Most Rated')));
+				'rating' => 'Most Rated',
+				'daterecorded' => 'Date Recorded',
+      )));
       
       return $fields;
    }

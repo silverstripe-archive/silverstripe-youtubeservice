@@ -52,6 +52,17 @@ class YoutubeService extends RestfulService {
 	public static $api_detail_url = "http://gdata.youtube.com/feeds/api/videos/%s";
 	
 	/**
+	 * Denotes if the $SortBy criteria needs special processing,
+	 * e.g. is not available as a standard sorting method through the API.
+	 * The value should be an xpath statement to get to the value.
+	 * 
+	 * @var array
+	 */
+	public static $sortby_processing = array(
+		'daterecorded' => 'yt:recorded',
+	);
+	
+	/**
  	* Creates a new YoutubeService object.
  	* @param expiry - Set the cache expiry time or TTL of the response
  	*/
@@ -82,11 +93,17 @@ class YoutubeService extends RestfulService {
 	* @return DataObjectSet
 	*/
 	function getVideosFeed($method=NULL, $params=array(), $max_results=NULL, $start_index=NULL, $orderby=NULL){
-		$default_params = array(
-			'max-results' => $max_results, 
-			'start-index' => $start_index,
-			'orderby' => $orderby
-		);
+		if(array_key_exists($orderby, self::$sortby_processing)) {
+			$default_params = array(
+				'max-results' => 50, // maximum number allowed by GData API 
+			);
+		} else {
+			$default_params = array(
+				'max-results' => $max_results, 
+				'start-index' => $start_index,
+				'orderby' => $orderby
+			);
+		}
 			
 		$params = array_merge($params, $default_params);
 		
@@ -102,14 +119,27 @@ class YoutubeService extends RestfulService {
 			$results = new DataObjectSet();
 			
 			foreach($videos as $video){
+				
 				$data = $this->extractVideoInfo($video); // Get the data requested
+				if(array_key_exists($orderby, self::$sortby_processing)) {
+					$customSortObj = $video->xpath(self::$sortby_processing[$orderby]);
+					$data['customsortby'] = (count($customSortObj)) ? (string)$customSortObj[0] : null;
+				}
 				$results->push(new ArrayData($data));
 			}
-					
-			//get total number of videos
-			$this->videoCount = $this->searchValue($conn, 'openSearch:totalResults');
-			$this->pageCount = (int)($this->videoCount/$max_results);
 			
+			if(array_key_exists($orderby, self::$sortby_processing)) {
+				$results->sort('customsortby', 'DESC');
+				$results = $results->getRange(0, $max_results);
+				// we can't allow paging on custom filters
+				$this->videoCount = $results->Count();
+				$this->pageCount = 1;
+			} else {
+				//get total number of videos
+				$this->videoCount = $this->searchValue($conn, 'openSearch:totalResults');
+				$this->pageCount = (int)($this->videoCount/$max_results);
+			}
+					
 			return $results;
 		} catch (Exception $e) {
 			user_error("Error occurred in processing YouTube response");
