@@ -1087,7 +1087,7 @@ lightwindow.prototype = {
 		return markup;
 	},
 	//
-	//  Depending what type of browser it is we have to append the object differently... DAMN YOU IE!!
+	//  Depending what type of browser it is we have to append the object differently... 
 	//
 	_appendObject : function(object, closeTag, appendTo) {
 		if (Prototype.Browser.IE) {
