@@ -113,7 +113,7 @@ class YoutubeService extends RestfulService {
 		
 		//have to make a custom XML object
 		try {
-			$xml =  new SimpleXMLElement($conn);
+			$xml =  @new SimpleXMLElement($conn);
 			
 			$videos = $xml->entry;
 			$results = new DataObjectSet();
