@@ -1,14 +1,24 @@
+###############################################
+Youtube Module
+###############################################
+
 19 November 2007
 
-This is v0.1.0 of YoutubeService module. This module is maintained by Lakshan Perera (lakshan AT silverstripe.com)
+Maintainer Contact
+-----------------------------------------------
+Lakshan Perera (Nickname: lperera)
+<perera.lakshan (at) gmail (dot) com>
 
-# Documentation
-You can find the documentation at : http://doc.silverstripe.com/doku.php?id=modules:youtubeservice
-
-# Requirements
+Requirements
+-----------------------------------------------
 PHP 5.2.5 (Due to bugfixes in SimpleXML, see http://nz.php.net/ChangeLog-5.php)
 
-# Installation
+Documentation
+-----------------------------------------------
+http://doc.silverstripe.com/doku.php?id=modules:youtubeservice
+
+Installation Instructions
+-----------------------------------------------
 1. Place this directory in the root of your SilverStripe installation
 I.e. you will now have the following root folders
 
@@ -33,8 +43,8 @@ If you are still using deprecated all-in-one mashups module, please remove it be
 
 * The new update of the YouTube API doesn't require to have an API key. So no need to worry on applying for an API key ;)
 
-Add the issues, bugs, contributions to the module on open.silverstripe.com (create a new ticket under this module).
+Usage Overview
+-----------------------------------------------
 
-If you require any support on usage of the module ask it through the forum - http://www.silverstripe.com/extending-hacking-silverstripe-forum/
-
-
+Known issues:
+-----------------------------------------------
