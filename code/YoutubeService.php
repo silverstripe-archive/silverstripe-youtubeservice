@@ -109,11 +109,11 @@ class YoutubeService extends RestfulService {
 		
 		$this->baseURL = self::$api_base_url . $method;
 		$this->setQueryString($params);
-		$conn = $this->connect();
+		$response = $this->request();
 		
 		//have to make a custom XML object
 		try {
-			$xml =  @new SimpleXMLElement($conn);
+			$xml =  @new SimpleXMLElement($response->getBody());
 			
 			$videos = $xml->entry;
 			$results = new DataObjectSet();
@@ -136,7 +136,7 @@ class YoutubeService extends RestfulService {
 				$this->pageCount = 1;
 			} else {
 				//get total number of videos
-				$this->videoCount = $this->searchValue($conn, 'openSearch:totalResults');
+				$this->videoCount = $this->searchValue($response->getBody(), 'openSearch:totalResults');
 				$this->pageCount = (int)($this->videoCount/$max_results);
 			}
 					
@@ -236,10 +236,10 @@ class YoutubeService extends RestfulService {
 		*/
 		
 		$this->baseURL = sprintf(self::$api_detail_url, $videoID);
-		$youtubeHandle = $this->connect();
+		$response = $this->request();
 		
 		try {
-			$video = new SimpleXMLElement($youtubeHandle, LIBXML_NOCDATA); // Convert the response to a SimpleXMLElement, stripping CDATA elements and returning 'pure' HTML
+			$video = new SimpleXMLElement($response->getBody(), LIBXML_NOCDATA); // Convert the response to a SimpleXMLElement, stripping CDATA elements and returning 'pure' HTML
 			if(!$video) return false;
 			
 			return $this->extractVideoInfo($video); // Get the data requested
@@ -256,7 +256,7 @@ class YoutubeService extends RestfulService {
 	* @todo Refactor to use DataObjectSet pagnination and templates
 	*/
 	function Paginate(){
-	$current_url = Director::currentURLSegment();
+	$current_url = Controller::curr()->Link();
 
 		$current_page = isset($_GET['page'])? (int)$_GET['page']: 1;;
 		$last_page = $this->pageCount;
