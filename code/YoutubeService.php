@@ -92,7 +92,7 @@ class YoutubeService extends RestfulService {
 	* @param orderby - Sorting method. The possible valus are relevance, updated, published, viewCount, rating
 	* @return DataObjectSet
 	*/
-	function getVideosFeed($method=NULL, $params=array(), $max_results=NULL, $start_index=NULL, $orderby=NULL){
+	function getVideosFeed($method=NULL, $params=array(), $max_results=NULL, $start_index=NULL, $orderby=NULL, $format="5"){
 		if(array_key_exists($orderby, self::$sortby_processing)) {
 			$default_params = array(
 				'max-results' => 50, // maximum number allowed by GData API 
@@ -101,7 +101,8 @@ class YoutubeService extends RestfulService {
 			$default_params = array(
 				'max-results' => $max_results, 
 				'start-index' => $start_index,
-				'orderby' => $orderby
+				'orderby' => $orderby,
+				'format' => $format
 			);
 		}
 			
