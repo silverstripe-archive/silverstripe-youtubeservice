@@ -51,13 +51,17 @@
 	}
 	.youtubegallery .youtubevideos li .still{
 		float:left;
-		width: 150px;
+		width: 320px;
 	}
-	.youtubegallery .typography .youtubevideos li .info{
+	.youtubegallery .typography .youtubevideos li .info {
 			float: left;
-			width: 430px;
-			margin:0 5px;
+			width: 260px;
+			margin: 0 0 0 20px;
 	}
+		/* prevent old themes breaking with the new widths */
+		#layout .youtubegallery .youtubevideos .info {
+			padding: 0;
+		}
 	.youtubegallery .typography .youtubevideos li .info h6{
 			margin:2px 0;
 	}
