@@ -1,0 +1,16 @@
+{
+	"name": "silverstripe-labs/youtubeservice",
+	"description": "Adds galleries of YouTube videos into your site.",
+	"type": "silverstripe-module",
+	"keywords": ["silverstripe-labs", "youtubeservice", "youtube", "video"],
+	"authors": [
+	{
+		"name": "Lakshan Perera",
+		"email": "perera.lakshan@gmail.com"
+	}
+	],
+	"require":
+	{
+		"silverstripe/framework": "2.4.*"
+	}
+}
